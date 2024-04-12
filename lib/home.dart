@@ -63,32 +63,30 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("User Profile", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          title: Text("User Profile",
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           centerTitle: true,
           toolbarHeight: 80,
           backgroundColor: Color.fromARGB(255, 252, 25, 108),
           bottom: PreferredSize(
             preferredSize: Size(MediaQuery.of(context).size.width, 30.0),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(30,0,30,15),
+              padding: const EdgeInsets.fromLTRB(30, 0, 30, 15),
               child: TextField(
-                
                 decoration: InputDecoration(
                   hintText: 'Search by name or email',
-                  hintStyle: TextStyle(color: Color.fromARGB(255, 204, 203, 203)),
-                  contentPadding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
-                  prefixIcon: Icon(Icons.search,color:Color.fromARGB(255, 204, 203, 203) ,),
-                  enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Color.fromARGB(255, 202, 199, 199), width: 1.5),
-                                    borderRadius: BorderRadius.circular(20)
-                              ),
-
-                   focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Colors.white, width: 1.5),
-                                    borderRadius: BorderRadius.circular(20)
-                              ), 
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
+                  prefixIcon: Icon(
+                    Icons.search,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(20.0), // Adjust radius as needed
+                  ),
                 ),
                 onChanged: (value) {
                   searchText = value;
@@ -111,7 +109,9 @@ class _HomePageState extends State<HomePage> {
                           child: Image.network(user["avatar"]),
                         ),
                         Text(user["id"].toString()),
-                        Text(user["first_name"].toString() + " " + user["last_name"].toString()),
+                        Text(user["first_name"].toString() +
+                            " " +
+                            user["last_name"].toString()),
                         Text(user["email"].toString()),
                         Divider(),
                       ],
