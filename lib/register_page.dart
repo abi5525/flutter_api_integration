@@ -1,110 +1,64 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:login/config.dart';
-import 'package:login/home.dart';
-import 'package:login/register_page.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:login/main.dart';
+import 'config.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-
-  String? token = prefs.getString('token');
-
-  runApp(MyApp(token: token));
-}
-
-class MyApp extends StatelessWidget {
-  final String? token;
-
-  const MyApp({required this.token, Key? key}) : super(key: key);
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Color.fromARGB(255, 252, 25, 108),
-        ),
-        useMaterial3: true,
-      ),
-      home: token != null && !JwtDecoder.isExpired(token!) ? HomePage(token: token!) : LoginPage(),
-    );
-  }
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-
-class LoginPage extends StatefulWidget {
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  late SharedPreferences prefs;
+
   bool isNotValidate = false;
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    initSharedPref();
-  }
-
-  void initSharedPref() async {
-    prefs = await SharedPreferences.getInstance();
-  }
-
-  void loginUser() async {
-    if (_emailController.text.isNotEmpty &&
+  void registerUser() async {
+    if (_usernameController.text.isNotEmpty &&
+        _emailController.text.isNotEmpty &&
         _passwordController.text.isNotEmpty) {
-      var loginBody = {
+      var regBody = {
+        "name": _usernameController.text,
         "email": _emailController.text,
         "password": _passwordController.text
       };
 
-      var response = await http.post(Uri.parse(login),
+      var response = await http.post(Uri.parse(registration),
           headers: {"Content-Type": "application/json"},
-          body: jsonEncode(loginBody));
+          body: jsonEncode(regBody));
 
       var jsonResponse = jsonDecode(response.body);
 
-      print(jsonResponse);
-
       if (jsonResponse['status'] == 200) {
-
-          String myToken = jsonResponse['token'];
-          // Map<String, dynamic> decodedToken = JwtDecoder.decode(yourToken);
-          // print(decodedToken['email']);
-
-          // print(jsonResponse['token']);
-        print("logged in");
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage(token: myToken,)),
-          
-        );
-      } else {
         final snackBar = SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(
-            jsonResponse['message'],
-            style: TextStyle(
-                color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
-          ),
+          backgroundColor: Colors.green,
+          content: Text(jsonResponse['message'],style: TextStyle(color: Colors.white,fontSize: 17,fontWeight: FontWeight.bold)),
           duration: Duration(
               seconds: 3), // Duration for which snackbar will be visible
+
         );
 
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
+
+      else{
+        final snackBar = SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(jsonResponse['message'],style: TextStyle(color: Colors.white,fontSize: 17,fontWeight: FontWeight.bold),),
+          duration: Duration(
+              seconds: 3), // Duration for which snackbar will be visible
+
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+
+
     } else {
       setState(() {
         isNotValidate = true;
@@ -112,6 +66,23 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  // String? _validateUsername(String? value) {
+  //   if (value == null || value.isEmpty) {
+  //     return 'Email is required';
+  //   }
+
+  //   return null;
+  // }
+
+  // String? _validatePassword(String? value) {
+  //   if (value == null || value.isEmpty) {
+  //     return 'Password is required';
+  //   }
+
+  //   return null;
+  // }
+
+  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,17 +94,31 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Login",
+                Text("Register",
                     style:
                         TextStyle(fontSize: 40, fontWeight: FontWeight.w500)),
                 SizedBox(
                   height: 30,
                 ),
                 TextFormField(
+                  controller: _usernameController,
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    errorText: isNotValidate ? "enter username" : null,
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(10.0), // Rounded corners
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    errorText: isNotValidate ? "Enter Email" : null,
+                    errorText: isNotValidate ? "enter email" : null,
                     border: OutlineInputBorder(
                       borderRadius:
                           BorderRadius.circular(10.0), // Rounded corners
@@ -146,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
                   obscureText: true, // Password field
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    errorText: isNotValidate ? "Enter Password" : null,
+                    errorText: isNotValidate ? "enter username" : null,
                     border: OutlineInputBorder(
                       borderRadius:
                           BorderRadius.circular(10.0), // Rounded corners
@@ -156,24 +141,16 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(height: 20.0),
                 ElevatedButton(
                   onPressed: () {
-                    // Handle login button press (validation etc.)
-                    // if (_formKey.currentState!.validate()) {
-                    //   Navigator.pushReplacement(
-                    //     context,
-                    //     MaterialPageRoute(builder: (context) => HomePage()),
-                    //   );
-                    // }
-
                     //  Navigator.pushReplacement(
                     //               context,
                     //               MaterialPageRoute(
-                    //                   builder: (context) => HomePage()),
+                    //                   builder: (context) => LoginPage()),
                     //             );
 
-                    loginUser();
+                    registerUser();
                   },
                   child: Text(
-                    'Login',
+                    'Submit',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -188,12 +165,13 @@ class _LoginPageState extends State<LoginPage> {
 
                 // SizedBox(height: 10,),
 
-                TextButton(
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => RegisterPage()));
-                    },
-                    child: Text("Register Here"))
+                TextButton(onPressed: () {
+                                       Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => LoginPage()),
+                                );
+                }, child: Text("Back To Login"))
               ],
             ),
           ),
@@ -202,4 +180,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-

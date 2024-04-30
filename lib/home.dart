@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 String stringResponse = '';
 Map mapResponse = {};
@@ -19,7 +20,8 @@ Widget buildLoading() {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final token;
+  const HomePage({super.key, @required this.token});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -52,10 +54,16 @@ class _HomePageState extends State<HomePage> {
     setState(() {}); // Update UI with filtered results
   }
 
+  //token decode
+  late String email;
+
   @override
   void initState() {
     apiCall();
     super.initState();
+
+    Map<String,dynamic>jwtDecodedToken = JwtDecoder.decode(widget.token);
+    print(jwtDecodedToken['email']);
   }
 
   @override
